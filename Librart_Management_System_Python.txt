@@ -1,0 +1,109 @@
+class Book:
+    def __init__(self, title, author):
+        self.title = title
+        self.author = author
+
+    def __str__(self):
+        return f"{self.title} by {self.author}"
+
+
+class Library:
+    def __init__(self):
+        self.books = []  # List of Book objects
+        self.borrowed_books = set()  # Track borrowed books
+        self.user_history = {}  # Dict: {username: [book1, book2]}
+
+    def add_book(self, book):
+        self.books.append(book)
+        print(f"Book '{book.title}' added to library.")
+
+    def display_books(self):
+        if not self.books:
+            print("No books available.")
+        else:
+            print("\nAvailable Books:")
+            for i, book in enumerate(self.books, 1):
+                print(f"{i}. {book}")
+
+    def borrow_book(self, username, book_index):
+        try:
+            book = self.books[book_index - 1]  # may raise IndexError
+            if book.title in self.borrowed_books:
+                print("Sorry, this book is already borrowed.")
+            else:
+                self.borrowed_books.add(book.title)
+                self.user_history.setdefault(username, []).append(book.title)
+                print(f"{username} borrowed '{book.title}'")
+        except IndexError:
+            print("Invalid book index. Please try again.")
+
+    def return_book(self, username, book_title):
+        try:
+            if book_title in self.borrowed_books:
+                self.borrowed_books.remove(book_title)
+                print(f"{username} returned '{book_title}'")
+            else:
+                print("This book was not borrowed.")
+        except KeyError:
+            print("User not found.")
+
+    def view_history(self, username):
+        history = self.user_history.get(username, [])
+        if history:
+            print(f"{username}'s Borrow History: {history}")
+        else:
+            print("No borrow history found.")
+
+
+class User:
+    def __init__(self, name):
+        self.name = name
+
+
+class Admin(User):
+    def __init__(self, name, library):
+        super().__init__(name)
+        self.library = library
+
+    def add_new_book(self, title, author):
+        book = Book(title, author)
+        self.library.add_book(book)
+
+
+# Main Program
+lib = Library()
+admin = Admin("Admin1", lib)
+
+# Adding some default books
+admin.add_new_book("Python Basics", "John Doe")
+admin.add_new_book("Data Structures", "Jane Smith")
+admin.add_new_book("OOP in Python", "Alex Brown")
+
+while True:
+    print("\n1. Display Books\n2. Borrow Book\n3. Return Book\n4. View Borrow History\n5. Exit")
+    try:
+        choice = int(input("Enter choice: "))
+        if choice == 1:
+            lib.display_books()
+        elif choice == 2:
+            name = input("Enter your name: ")
+            lib.display_books()
+            index = int(input("Enter book number to borrow: "))
+            lib.borrow_book(name, index)
+        elif choice == 3:
+            name = input("Enter your name: ")
+            title = input("Enter book title to return: ")
+            lib.return_book(name, title)
+        elif choice == 4:
+            name = input("Enter your name: ")
+            lib.view_history(name)
+        elif choice == 5:
+            print("Exiting Library System. Goodbye!")
+            break
+        else:
+            print("Invalid choice. Try again.")
+    except ValueError:
+        print("Invalid input. Please enter a number.")
+
+   
+   
